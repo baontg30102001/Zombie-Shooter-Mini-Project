@@ -52,23 +52,23 @@ public class PlayerShootingController : MonoBehaviour
             Vector3 _worldAimTarget = _mouseWorldPosition;
             _worldAimTarget.y = transform.position.y;
             Vector3 _aimDirection = (_worldAimTarget - transform.position).normalized;
-
+            
+            _aimCamera.gameObject.SetActive(true);
+            _thirdPersonController.SetSensitivity(_normalSensitivity);
+            _thirdPersonController.SetRotateOnMove(false);
+            
             float angleToTarget = Vector3.Angle(transform.forward, _aimDirection);
 
             if (angleToTarget <= _shootAngleThreshold)
             {
                 // Nếu góc <= 45 độ, vừa bắn vừa xoay
                 _nextFireTime = Time.time + _fireRate;
-                InstantiateBullet(_mouseWorldPosition);
                 RotateTowardsTarget(_aimDirection);
+                InstantiateBullet(_mouseWorldPosition);
             }
             else
             {
-                // Nếu góc > 45 độ, xoay trước rồi mới bắn
-                if (!_isRotating)
-                {
-                    StartCoroutine(RotateAndShoot(_mouseWorldPosition));
-                }
+                RotateTowardsTarget(_aimDirection);
             }
         }
         else if (!_inputSystem.shoot)
@@ -77,29 +77,6 @@ public class PlayerShootingController : MonoBehaviour
             _thirdPersonController.SetSensitivity(_shootSensitivity);
             _thirdPersonController.SetRotateOnMove(true);
         }
-    }
-
-    private IEnumerator RotateAndShoot(Vector3 mouseWorldPosition)
-    {
-        _isRotating = true;
-        _aimCamera.gameObject.SetActive(true);
-        _thirdPersonController.SetSensitivity(_normalSensitivity);
-        _thirdPersonController.SetRotateOnMove(false);
-
-        Vector3 _worldAimTarget = mouseWorldPosition;
-        _worldAimTarget.y = transform.position.y;
-        Vector3 _aimDirection = (_worldAimTarget - transform.position).normalized;
-
-        while (Vector3.Angle(transform.forward, _aimDirection) > 0.1f)
-        {
-            RotateTowardsTarget(_aimDirection);
-            yield return null;
-        }
-
-        _nextFireTime = Time.time + _fireRate;
-        InstantiateBullet(mouseWorldPosition);
-
-        _isRotating = false;
     }
 
     private void RotateTowardsTarget(Vector3 aimDirection)

@@ -5,10 +5,13 @@ public class BulletProjectile : MonoBehaviour
 {
     [SerializeField]
     private Rigidbody bulletRigidBody;
-
+    [SerializeField]
+    float _speed = 10f;
+    [SerializeField] 
+    private int _damage = 20;
+    
     private void Start()
     {
-        float _speed = 10f;
         bulletRigidBody.linearVelocity = transform.forward * _speed;
     }
 
