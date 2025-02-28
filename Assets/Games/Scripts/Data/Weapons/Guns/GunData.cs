@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [Serializable]
 public class GunData
@@ -8,19 +9,16 @@ public class GunData
 
     public string gunId;
     public string gunName;
-    public string bulletID;
-    
+    [FormerlySerializedAs("bulletID")] public string bulletId;
     public Sprite gunImage;
-
     public int magazineSize;
-    
     public float fireRate;
     public float reloadTime;
     
-    public GameObject vfx;
-    public GameObject vfxHit;
+    public GameObject impactEffect;
     
-    public AudioClip sfx;
+    public AudioClip shootSFX;
+    public AudioClip reloadSFX;
     
 }
 

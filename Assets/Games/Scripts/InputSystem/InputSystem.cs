@@ -9,7 +9,8 @@ public class InputSystem : MonoBehaviour
     public Vector2 look;
     public bool jump;
     public bool sprint;
-    [FormerlySerializedAs("fire")] public bool shoot;
+    public bool shoot;
+    public bool reload;
 
     public bool cursorLocked = true;
     public bool cursorInputForLook = true;
@@ -42,6 +43,12 @@ public class InputSystem : MonoBehaviour
         ShootInput(value.isPressed);
     }
 
+    public void OnReload(InputValue value)
+    {
+        ReloadInput(value.isPressed);
+    }
+    
+
     public void MoveInput(Vector2 newMoveDirection)
     {
         move = newMoveDirection;
@@ -66,6 +73,13 @@ public class InputSystem : MonoBehaviour
     {
         shoot = newShootState;
     }
+
+    public void ReloadInput(bool newReloadState)
+    {
+        reload = newReloadState;
+    }
+    
+    
     private void OnApplicationFocus(bool hasFocus)
     {
         SetCursorState(cursorLocked);

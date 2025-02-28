@@ -13,11 +13,14 @@ public partial class Player : MonoBehaviour
     [FoldoutGroup("Player Shooting"), SerializeField]
     private float _normalSensitivity;      
     [FoldoutGroup("Player Shooting"), SerializeField]
-    private float _shootSensitivity;    
+    private float _shootSensitivity;
+
+    [FoldoutGroup("Player Shooting"), SerializeField]
+    private Transform _gunPosition;
     
     private const float _shootAngleThreshold = 45f;
 
-    private void HandlerShooting()
+    private void HandlerWeapon()
     {
         Vector3 mouseWorldPosition = Vector3.zero;
         
@@ -43,7 +46,10 @@ public partial class Player : MonoBehaviour
             if (angleToTarget <= _shootAngleThreshold)
             {
                 RotateTowardsTarget(aimDirection);
-                currentGun.Shoot(mouseWorldPosition);
+                if (_currentGun != null)
+                {
+                    _currentGun.Shoot(mouseWorldPosition);
+                }
             }
             else
             {
@@ -55,6 +61,12 @@ public partial class Player : MonoBehaviour
             _aimCamera.gameObject.SetActive(false);
             _sensitivity = _normalSensitivity;
             _rotateOnMove = true;
+        }
+
+        if (_inputSystem.reload)
+        {
+            _currentGun.Reload();
+            _inputSystem.reload = false;
         }
     }
     

@@ -11,7 +11,7 @@ public class BulletData
     public float bulletDamage;
     public float bulletLifetime;
     public float bulletSpeed;
-    public float enviromentGravity;
+    public float bulletRadius;
 }
 
 public enum BulletType

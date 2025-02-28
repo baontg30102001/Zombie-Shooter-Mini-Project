@@ -13,16 +13,60 @@ MonoBehaviour:
   m_Name: GameSetting
   m_EditorClassIdentifier: 
   gunSettings:
-    GunDatas: []
+    m4a1Prefab: {fileID: 2678100843539884508, guid: 56221bab0e317a642bc63b4a585b5ab9, type: 3}
+    m32a1Prefab: {fileID: 1000014207095482, guid: fba4ebf9aef9f2640a335a8ebe4a80bc, type: 3}
+    GunDatas:
+    - gunType: 2
+      gunId: gun_201
+      gunName: M4A1
+      bulletId: bullet_201
+      gunImage: {fileID: 0}
+      magazineSize: 30
+      fireRate: 0.2
+      reloadTime: 0.5
+      impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
+      shootSFX: {fileID: 0}
+      reloadSFX: {fileID: 0}
+    - gunType: 3
+      gunId: gun_301
+      gunName: M32A1
+      bulletId: bullet_301
+      gunImage: {fileID: 0}
+      magazineSize: 6
+      fireRate: 1
+      reloadTime: 0.5
+      impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
+      shootSFX: {fileID: 0}
+      reloadSFX: {fileID: 0}
   bulletSettings:
-    BulletDatas: []
+    b556Prefab: {fileID: 8824494887773764939, guid: d31b8db066afc7d4a9c26c275f5645c4, type: 3}
+    b40Prefab: {fileID: 6734558614857886850, guid: e2103aeb880ecb14086069c6d04d6fab, type: 3}
+    BulletDatas:
+    - bulletType: 2
+      bulletId: bullet_201
+      bulletName: 5.56mm
+      bulletDamage: 15
+      bulletLifetime: 5
+      bulletSpeed: 20
+      bulletRadius: 0
+    - bulletType: 3
+      bulletId: bullet_301
+      bulletName: 40mm
+      bulletDamage: 30
+      bulletLifetime: 10
+      bulletSpeed: 15
+      bulletRadius: 10
   entitySettings:
     PlayerData:
-      entityId: 
-      hP: 0
-      moveSpeed: 0
-      sprintSpeed: 0
-      jumpHeight: 0
+      entityId: player
+      hP: 100
+      moveSpeed: 2
+      sprintSpeed: 5.335
+      jumpHeight: 1.2
+      sensitivity: 1
+      guns:
+      - gun_201
+      - gun_301
     MeleeZombieDatas: []
     RangeZombieDatas: []
     BossZombieDatas: []

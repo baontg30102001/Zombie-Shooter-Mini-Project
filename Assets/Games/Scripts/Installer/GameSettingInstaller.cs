@@ -5,7 +5,7 @@ using Zenject;
 public class GameSettingInstaller : ScriptableObjectInstaller<GameSettingInstaller>
 {
     public GunInstaller.Settings gunSettings;
-    public ButtletInstaller.Settings bulletSettings;
+    public BulletInstaller.Settings bulletSettings;
     public EntityIntaller.Settings entitySettings;
     public override void InstallBindings()
     {
