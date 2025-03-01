@@ -11,7 +11,8 @@ public class InputSystem : MonoBehaviour
     public bool sprint;
     public bool shoot;
     public bool reload;
-
+    public bool swapWeapon;
+    
     public bool cursorLocked = true;
     public bool cursorInputForLook = true;
 
@@ -47,7 +48,11 @@ public class InputSystem : MonoBehaviour
     {
         ReloadInput(value.isPressed);
     }
-    
+
+    public void OnSwapWeapon(InputValue value)
+    {
+        SwapWeapon(value.isPressed);
+    }
 
     public void MoveInput(Vector2 newMoveDirection)
     {
@@ -77,6 +82,11 @@ public class InputSystem : MonoBehaviour
     public void ReloadInput(bool newReloadState)
     {
         reload = newReloadState;
+    }
+
+    public void SwapWeapon(bool newSwapState)
+    {
+        swapWeapon = newSwapState;
     }
     
     

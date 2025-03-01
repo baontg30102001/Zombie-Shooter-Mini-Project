@@ -1,11 +1,17 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using Zenject;
 
 public class Bullet_556 : BulletProjectile, IPoolable<Vector3, IMemoryPool>, IDisposable
 {
-    private Vector3 _firePosition;
     private IMemoryPool _pool;
+
+    public override void OnTriggerEnter(Collider other)
+    {
+        base.OnTriggerEnter(other);
+        Dispose();
+    }
 
     public void OnDespawned()
     {
@@ -14,16 +20,25 @@ public class Bullet_556 : BulletProjectile, IPoolable<Vector3, IMemoryPool>, IDi
 
     public void OnSpawned(Vector3 p1, IMemoryPool p2)
     {
+        _pool = p2;
         transform.position = p1;
+
+        StartCoroutine(LifeTimeCountdown());
     }
-    
-    public class Factory : PlaceholderFactory<Vector3, Bullet_556>
+
+    private IEnumerator LifeTimeCountdown()
     {
-       
+        yield return new WaitForSeconds(_lifeTime);
+        Dispose();
     }
 
     public void Dispose()
     {
         _pool.Despawn(this);
+    }
+    
+    public class Factory : PlaceholderFactory<Vector3, Bullet_556>
+    {
+       
     }
 }

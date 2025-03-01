@@ -1,22 +1,20 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 public class BulletProjectile : MonoBehaviour
 {
-    [SerializeField]
-    private Rigidbody bulletRigidBody;
-    [SerializeField]
-    private float _speed = 10f;
-    [SerializeField] 
-    private float _damage = 20;
-    [SerializeField] private float _lifeTime;
+    [SerializeField] protected Rigidbody _bulletRigidBody;
+    [SerializeField] private float _speed = 10f;
+    [SerializeField] private float _damage = 20;
+    [SerializeField] protected float _lifeTime;
     [SerializeField] private GameObject _hitVFX;
     [SerializeField] private float _radius = 0f;
     [SerializeField] private GameObject _explosionEffect;
 
     private BulletInstaller.Settings _bulletConfig;
-    private BulletData _bulletData = new BulletData();
+    protected BulletData _bulletData = new BulletData();
     
     [Inject]
     public void Construct(BulletInstaller.Settings bulletConfig)
@@ -36,10 +34,10 @@ public class BulletProjectile : MonoBehaviour
 
     public void Shooting()
     {
-        bulletRigidBody.linearVelocity = transform.forward * _speed;
+        _bulletRigidBody.linearVelocity = transform.forward * _speed;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public virtual void OnTriggerEnter(Collider other)
     {
         Debug.Log($"hit {other.name}");
         if (_radius > 0)
@@ -50,7 +48,6 @@ public class BulletProjectile : MonoBehaviour
         {
             HitEnemies(other);
         }
-        //Destroy(gameObject);
     }
 
     private void HitEnemies(Collider other)

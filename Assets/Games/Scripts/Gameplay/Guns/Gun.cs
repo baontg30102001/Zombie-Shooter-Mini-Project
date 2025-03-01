@@ -20,12 +20,14 @@ public class Gun : MonoBehaviour
     
     private GunInstaller.Settings _gunConfig;
     private GunData _gunData = new GunData();
-
+    
     private string _gunId;
     private string _bulletId;
     private int _magazineSize = 30;
     private float _nextFireTime = 0f;
 
+    public GunType GunType => _gunType;
+    
     #region Bullet Entity
     
     private Bullet_556.Factory _bullet556Factory;
@@ -81,8 +83,17 @@ public class Gun : MonoBehaviour
 
     public void Reload()
     {
-        _magazineMax -= _ammo;
-        _ammo = _magazineSize;
+        int ammoMiss = _magazineSize - _ammo;
+        if (_magazineMax >= ammoMiss)
+        {
+            _magazineMax -= ammoMiss;
+            _ammo = _magazineSize;
+        }
+        else
+        {
+            _ammo += _magazineMax;
+            _magazineMax = 0;
+        }
     }
 
     private BulletProjectile SpawnBullet(string bulletId, Vector3 aimDir)

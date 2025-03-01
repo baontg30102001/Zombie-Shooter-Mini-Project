@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 2678100843539884508}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: -0.00000016292068}
-  m_LocalPosition: {x: 0, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gunName: M4A1
   _ammo: 30
-  _magazineSize: 30
+  _magazineMax: 30
   _fireRate: 0.2
   _reloadTime: 0.5
   _firePoint: {fileID: 4211700458801309327}
