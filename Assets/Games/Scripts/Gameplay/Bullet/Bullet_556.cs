@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Zenject;
 
-public class Bullet_556 : BulletProjectile, IPoolable<Vector3, IMemoryPool>, IDisposable
+public class Bullet_556 : Bullet, IPoolable<Vector3, IMemoryPool>, IDisposable
 {
     private IMemoryPool _pool;
 

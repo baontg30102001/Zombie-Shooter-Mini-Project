@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 [Serializable]
 public class EntityData
@@ -21,18 +22,22 @@ public class PlayerData : EntityData
 [Serializable]
 public class ZombieData : EntityData
 {
-    
+    public float detectionRange;
 }
 
 [Serializable]
 public class MeleeZombieData : ZombieData
 {
+    public float attackMeleeDistance;
     public float damage;
+    public float cooldownMeleeAttack;
 }
 
 [Serializable]
 public class RangeZombieData : ZombieData
 {
+    [FormerlySerializedAs("attackRangerRange")] public float attackRangeDistance;
+    public float safeDistance;
     public string gunId;
 }
 
@@ -41,5 +46,10 @@ public class BossZombieData : ZombieData
 {
     public string gunId;
     public float damage;
+    public float cooldownMeleeAttack;
+    public float aoeRadius;
+    public float aoeDamage;
+    public float aoePreparationTime;
+    public float stunDuration;
 }
 

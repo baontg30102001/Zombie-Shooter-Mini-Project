@@ -33,7 +33,7 @@ MonoBehaviour:
       bulletId: bullet_301
       gunImage: {fileID: 0}
       magazineSize: 6
-      fireRate: 1
+      fireRate: 0
       reloadTime: 0.5
       impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
       shootSFX: {fileID: 0}
@@ -49,17 +49,19 @@ MonoBehaviour:
       bulletLifetime: 5
       bulletSpeed: 20
       bulletRadius: 0
+      bulletGravity: 0
     - bulletType: 3
       bulletId: bullet_301
       bulletName: 40mm
       bulletDamage: 30
       bulletLifetime: 10
       bulletSpeed: 15
-      bulletRadius: 10
+      bulletRadius: 2
+      bulletGravity: 9.81
   entitySettings:
     PlayerData:
       entityId: player
-      hP: 100
+      hP: 200
       moveSpeed: 2
       sprintSpeed: 5.335
       jumpHeight: 1.2
@@ -67,6 +69,13 @@ MonoBehaviour:
       guns:
       - gun_201
       - gun_301
-    MeleeZombieDatas: []
+    MeleeZombieDatas:
+    - entityId: zb_001
+      hP: 100
+      moveSpeed: 2
+      detectionRange: 10
+      attackMeleeDistance: 2
+      damage: 10
+      cooldownMeleeAttack: 0.5
     RangeZombieDatas: []
     BossZombieDatas: []

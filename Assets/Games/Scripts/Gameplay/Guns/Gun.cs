@@ -27,9 +27,15 @@ public class Gun : MonoBehaviour
     private float _nextFireTime = 0f;
 
     public GunType GunType => _gunType;
+    public Transform GetFirePoint() => _firePoint;
+    public float GetBulletSpeed() => _bulletData.bulletSpeed;
+    public float GetBulletGravity() => _bulletData.bulletGravity;
+    public float GetBulletRadius() => _bulletData.bulletRadius;
     
     #region Bullet Entity
     
+    private BulletInstaller.Settings _bulletConfig;
+    private BulletData _bulletData = new BulletData();
     private Bullet_556.Factory _bullet556Factory;
     private Bullet_40.Factory _bullet40Factory;
 
@@ -38,20 +44,24 @@ public class Gun : MonoBehaviour
     [Inject]
     public void Construct(
         GunInstaller.Settings gunConfig,
+        BulletInstaller.Settings bulletConfig,
         Bullet_556.Factory bullet556Factory,
         Bullet_40.Factory bullet40Factory)
     {
         _gunConfig = gunConfig;
+        _bulletConfig = bulletConfig;
         _bullet556Factory = bullet556Factory;
         _bullet40Factory = bullet40Factory;
     }
     
     public void Initialize(string gunId)
     {
+        _gunId = gunId;
         _gunData = _gunConfig.GetGunDataById(gunId);
 
-        _gunId = gunId;
         _bulletId = _gunData.bulletId;
+        _bulletData = _bulletConfig.GetBulletDataById(_bulletId);
+        
         _gunName = _gunData.gunName;
         _ammo = _gunData.magazineSize;
         _magazineMax = _ammo * 3;
@@ -76,8 +86,8 @@ public class Gun : MonoBehaviour
             var impactEffectIstance = Instantiate(_impactEffect, _firePoint.position, _firePoint.rotation) as GameObject;
             Destroy(impactEffectIstance, 4);
             
-            BulletProjectile _bulletProjectile = SpawnBullet(_bulletId, aimDir);
-            _bulletProjectile.Shooting();
+            Bullet bullet = SpawnBullet(_bulletData, aimDir);
+            bullet.Shooting();
         }
     }
 
@@ -96,18 +106,18 @@ public class Gun : MonoBehaviour
         }
     }
 
-    private BulletProjectile SpawnBullet(string bulletId, Vector3 aimDir)
+    private Bullet SpawnBullet(BulletData bulletData, Vector3 aimDir)
     {
-        BulletProjectile _bulletProjectile = CreateBullet(bulletId);
-        _bulletProjectile.Initialize(bulletId);
-       _bulletProjectile.transform.rotation = Quaternion.LookRotation(aimDir, Vector3.up);
+        Bullet bullet = CreateBullet(_bulletId);
+        bullet.Initialize(bulletData);
+       bullet.transform.rotation = Quaternion.LookRotation(aimDir, Vector3.up);
 
-        return _bulletProjectile;
+        return bullet;
     }
 
-    private BulletProjectile CreateBullet(string bulletId)
+    private Bullet CreateBullet(string bulletId)
     {
-        BulletProjectile pro = null;
+        Bullet pro = null;
         switch (bulletId)
         {
             case GameDefine.BulletEntity.BULLET_556:

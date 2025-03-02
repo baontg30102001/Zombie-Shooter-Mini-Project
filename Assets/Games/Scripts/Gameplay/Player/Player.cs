@@ -99,10 +99,16 @@ public partial class Player : MonoBehaviour
         _ => _m4a1Factory.Create(),
     };
 
-    private void ChangeGun()
+    public void TakeDamage(float damage)
+    {
+        _health -= damage;
+    }
+
+    public void Stun(float duration)
     {
         
     }
+    
     
     public class Factory : PlaceholderFactory<Player>
     {
