@@ -92,8 +92,11 @@ MonoBehaviour:
       detectionRange: 10
       gunId: gun_201
       damage: 20
+      attackMeleeDistance: 2
+      attackRangeDistance: 10
       cooldownMeleeAttack: 0.5
+      cooldownSkill: 20
       aoeRadius: 7
       aoeDamage: 50
-      aoePreparationTime: 30
+      aoePreparationTime: 10
       stunDuration: 1
