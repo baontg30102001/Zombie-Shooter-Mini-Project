@@ -27,6 +27,9 @@ public class Gun : MonoBehaviour
     private float _nextFireTime = 0f;
 
     public GunType GunType => _gunType;
+
+    public int GetCurrentAmmo() => _ammo;
+    public int GetAmmoRemaining() => _magazineMax;
     public Transform GetFirePoint() => _firePoint;
     public float GetBulletSpeed() => _bulletData.bulletSpeed;
     public float GetBulletGravity() => _bulletData.bulletGravity;

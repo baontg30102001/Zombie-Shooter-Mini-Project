@@ -122,7 +122,6 @@ public partial class Player : MonoBehaviour
         
         if (_inputSystem.shoot && !_isAimingGrenadeLauncher)
         {
-            Debug.Log("A");
             if (_hasAnimator)
             {
                 _animator.SetBool(_animIDAim, true);
@@ -144,10 +143,11 @@ public partial class Player : MonoBehaviour
             _aimCamera.gameObject.SetActive(false);
             _sensitivity = _normalSensitivity;
             _rotateOnMove = true;
-            _currentGun.Shoot(GetTargetPosition());
             _aoeIndicatorInstance.SetActive(false);
             
             (_currentGun as M32A1).LineRenderer.gameObject.SetActive(false);
+            
+            _currentGun.Shoot(GetTargetPosition());
         }
         else
         {
@@ -229,7 +229,6 @@ public partial class Player : MonoBehaviour
         }
 
         _aoeIndicatorInstance.transform.position = position;
-        Debug.Log(_currentGun.GetBulletRadius());
         _aoeIndicatorInstance.transform.localScale = Vector3.one * _currentGun.GetBulletRadius() * 2; // Scale theo radius
     }
 }

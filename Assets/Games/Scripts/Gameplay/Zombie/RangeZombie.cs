@@ -178,8 +178,6 @@ public class RangeZombie : Zombie
 
         public override void UpdateState()
         {
-            ShootPlayer();
-
             float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
             if (distanceToPlayer < ((RangeZombie)_zombie)._safeDistance)
             {
@@ -188,6 +186,10 @@ public class RangeZombie : Zombie
             else if (distanceToPlayer > ((RangeZombie)_zombie)._attackRangeDistance)
             {
                 _zombie.SetState(ZombieStateType.Chasing);
+            }
+            else if(distanceToPlayer <= ((RangeZombie)_zombie)._attackRangeDistance)
+            {
+                ShootPlayer();
             }
         }
 

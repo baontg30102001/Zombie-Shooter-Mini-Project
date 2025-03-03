@@ -36,7 +36,7 @@ public class MeleeZombieData : ZombieData
 [Serializable]
 public class RangeZombieData : ZombieData
 {
-    [FormerlySerializedAs("attackRangerRange")] public float attackRangeDistance;
+    public float attackRangeDistance;
     public float safeDistance;
     public string gunId;
 }
@@ -46,7 +46,10 @@ public class BossZombieData : ZombieData
 {
     public string gunId;
     public float damage;
+    public float attackMeleeDistance;
+    public float attackRangeDistance;
     public float cooldownMeleeAttack;
+    public float cooldownSkill;
     public float aoeRadius;
     public float aoeDamage;
     public float aoePreparationTime;

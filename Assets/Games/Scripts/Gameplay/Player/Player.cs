@@ -7,7 +7,8 @@ using Zenject;
 
 public partial class Player : MonoBehaviour
 {
-    [SerializeField] private float _health = 100;
+    [SerializeField] private float _hp = 100;
+    [SerializeField] private float _maxHP = 100;
     [SerializeField] private Gun _currentGun;
     [SerializeField] private List<Gun> _gunInInventory;
     [SerializeField] private Dictionary<string, int> _inventory;
@@ -22,6 +23,8 @@ public partial class Player : MonoBehaviour
 
     #endregion
 
+    public float GetPlayerHP() => _hp;
+    public float GetPlayerMaxHP() => _maxHP;
     public Gun CurrentGun
     {
         get => _currentGun;
@@ -51,7 +54,8 @@ public partial class Player : MonoBehaviour
     {
         _playerData = _entityConfig.PlayerData;
 
-        _health = _playerData.hP;
+        _hp = _playerData.hP;
+        _maxHP = _playerData.hP;
         _moveSpeed = _playerData.moveSpeed;
         _sprintSpeed = _playerData.sprintSpeed;
         _jumpHeight = _playerData.jumpHeight;
@@ -101,7 +105,11 @@ public partial class Player : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        _health -= damage;
+        _hp -= damage;
+        if (_hp <= 0)
+        {
+            _hp = 0;
+        }
     }
 
     public void Stun(float duration)

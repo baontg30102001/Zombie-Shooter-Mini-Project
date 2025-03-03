@@ -56,7 +56,7 @@ MonoBehaviour:
       bulletDamage: 30
       bulletLifetime: 10
       bulletSpeed: 15
-      bulletRadius: 2
+      bulletRadius: 3
       bulletGravity: 9.81
   entitySettings:
     PlayerData:
@@ -85,4 +85,15 @@ MonoBehaviour:
       attackRangeDistance: 10
       safeDistance: 5
       gunId: gun_201
-    BossZombieDatas: []
+    BossZombieDatas:
+    - entityId: zb_201
+      hP: 1000
+      moveSpeed: 2
+      detectionRange: 10
+      gunId: gun_201
+      damage: 20
+      cooldownMeleeAttack: 0.5
+      aoeRadius: 7
+      aoeDamage: 50
+      aoePreparationTime: 30
+      stunDuration: 1

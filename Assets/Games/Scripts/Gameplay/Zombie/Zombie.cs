@@ -47,4 +47,5 @@ public abstract class Zombie : MonoBehaviour
     }
     
     protected abstract ZombieState CreateState(ZombieStateType stateType);
+
 }

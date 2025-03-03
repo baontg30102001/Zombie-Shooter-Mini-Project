@@ -8,19 +8,27 @@ public class BossZombie : Zombie
     protected string _gunId;
     protected float _damage;
     protected float _cooldownMeleeAttack;
+    protected float _attackMeleeDistance;
+    protected float _attackRangeDistance;
     protected float _aoeRadius;
     protected float _aoeDamage;
     protected float _aoePreparationTime;
-    protected float _stunDuration;
+    protected float _cooldownSkill;
     
+    [SerializeField] private Transform _gunPosition;
+    [SerializeField] private Gun _currentGun;
     [SerializeField] private new BossZombieData _zombieData;
     
     private EntityIntaller.Settings _entitySettings;
+    private M4A1.Factory _m4a1Factory;
+    protected float _lastUsingSkill;
 
     [Inject]
-    public void Construct(EntityIntaller.Settings entitySettings)
+    public void Construct(EntityIntaller.Settings entitySettings,
+        M4A1.Factory m4a1Factory)
     {
         _entitySettings = entitySettings;
+        _m4a1Factory = m4a1Factory;
     }
     
     public override void InitializeFromData(string zombieId)
@@ -31,12 +39,34 @@ public class BossZombie : Zombie
         
         _gunId = _zombieData.gunId;
         _damage = _zombieData.damage;
+        _attackMeleeDistance = _zombieData.attackMeleeDistance;
+        _attackRangeDistance = _zombieData.attackRangeDistance;
         _cooldownMeleeAttack = _zombieData.cooldownMeleeAttack;
         _aoeRadius = _zombieData.aoeRadius;
         _aoeDamage = _zombieData.aoeDamage;
         _aoePreparationTime = _zombieData.aoePreparationTime;
-        _stunDuration = _zombieData.stunDuration;
+        _cooldownSkill = _zombieData.cooldownSkill;
+        
+        _currentGun = SpawnGuns(_gunId);
+        SetState(ZombieStateType.Idle);
+        _lastUsingSkill = Time.time;
     }
+    
+    private Gun SpawnGuns(string gunId)
+    {
+        Gun gun = CreateGuns(gunId);
+        gun.Initialize(gunId);
+        gun.transform.SetParent(_gunPosition, false);
+        
+        return gun;
+    }
+
+    private Gun CreateGuns(string gunId) => gunId switch
+    {
+        GameDefine.GunEntity.M4A1 => _m4a1Factory.Create(),
+        //Default
+        _ => _m4a1Factory.Create(),
+    };
 
     protected override ZombieState CreateState(ZombieStateType stateType)
     {
@@ -128,7 +158,7 @@ public class BossZombie : Zombie
             _zombie.GetNavMeshAgent().destination = _zombie.GetPlayer().transform.position;
 
             float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
-            if (distanceToPlayer < _zombie.GetDetectionRange() / 2) // Giả định tấn công gần
+            if (distanceToPlayer <= ((BossZombie)_zombie)._attackRangeDistance) // Giả định tấn công gần
             {
                 _zombie.SetState(ZombieStateType.Attacking);
             }
@@ -144,7 +174,6 @@ public class BossZombie : Zombie
     private class AttackingState : ZombieState
     {
         private float lastAttackTime;
-
         public AttackingState(Zombie zombie) : base(zombie, ZombieStateType.Attacking) { }
 
         public override void EnterState()
@@ -155,30 +184,74 @@ public class BossZombie : Zombie
 
         public override void UpdateState()
         {
-            if (Time.time - lastAttackTime >= ((BossZombie)_zombie)._cooldownMeleeAttack)
+            float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
+            
+            if (Random.value < 0.01f) // 1% cơ hội kích hoạt AOE
             {
-                AttackPlayer();
-                lastAttackTime = Time.time;
+                Debug.Log("Thời gian hồi còn: " + (((BossZombie)_zombie)._cooldownSkill - (Time.time - ((BossZombie)_zombie)._lastUsingSkill)));
+                if (Time.time - ((BossZombie)_zombie)._lastUsingSkill >= ((BossZombie)_zombie)._cooldownSkill)
+                {
+                    _zombie.SetState(ZombieStateType.PreparingAOE);
+                }
             }
 
-            float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
-            if (distanceToPlayer > _zombie.GetDetectionRange() / 2)
+            if (distanceToPlayer <= ((BossZombie)_zombie)._attackMeleeDistance)
+            {
+                if (Time.time - lastAttackTime >= ((BossZombie)_zombie)._cooldownMeleeAttack)
+                {
+                    Debug.Log("Melee");
+                    AttackPlayer();
+                    lastAttackTime = Time.time;
+                }
+            }
+            else if(distanceToPlayer <= ((BossZombie)_zombie)._attackRangeDistance)
+            {
+                ShootPlayer();
+            }
+            else if(distanceToPlayer <= _zombie.GetDetectionRange())
             {
                 _zombie.SetState(ZombieStateType.Chasing);
-            }
-            else if (Random.value < 0.1f) // 10% cơ hội kích hoạt AOE
-            {
-                _zombie.SetState(ZombieStateType.PreparingAOE);
             }
         }
 
         private void AttackPlayer()
         {
-            Player playerScript = _zombie.GetPlayer();
-            if (playerScript != null)
+            Player player = _zombie.GetPlayer();
+            if (player != null)
             {
-                playerScript.TakeDamage(((BossZombie)_zombie)._damage);
+                player.TakeDamage(((BossZombie)_zombie)._damage);
             }
+        }
+        private void ShootPlayer()
+        {
+            Player player = _zombie.GetPlayer();
+            if (player != null)
+            {
+                Vector3 worldAimTarget = player.transform.position;
+                worldAimTarget.y = _zombie.transform.position.y;
+                Vector3 aimDirection = (worldAimTarget - _zombie.transform.position).normalized;
+
+                float angleToTarget = Vector3.Angle(_zombie.transform.forward, aimDirection);
+
+                var playerPosition = new Vector3(
+                    player.transform.position.x,
+                    player.transform.position.y + player.GetComponent<CharacterController>().height * 0.66f,
+                    player.transform.position.z);
+                
+                if (angleToTarget <= 0.1f)
+                {
+                    ((BossZombie)_zombie)._currentGun.Shoot(playerPosition);
+                }
+                else
+                {
+                    RotateTowardsTarget(aimDirection);
+                }
+            }
+        }
+        
+        private void RotateTowardsTarget(Vector3 aimDirection)
+        {
+            _zombie.transform.forward = Vector3.Lerp(_zombie.transform.forward, aimDirection, Time.deltaTime * 20f);
         }
 
         public override void ExitState() { }
@@ -200,10 +273,11 @@ public class BossZombie : Zombie
         public override void UpdateState()
         {
             timer += Time.deltaTime;
+            Debug.Log("Còn " + timer + " là nổ.");
             if (timer >= ((BossZombie)_zombie)._aoePreparationTime)
             {
                 TriggerAOE();
-                _zombie.SetState(ZombieStateType.Chasing);
+                _zombie.SetState(ZombieStateType.Idle);
             }
         }
 
@@ -217,11 +291,11 @@ public class BossZombie : Zombie
             Collider[] hitColliders = Physics.OverlapSphere(_zombie.transform.position, ((BossZombie)_zombie)._aoeRadius);
             foreach (Collider hit in hitColliders)
             {
-                Player playerScript = hit.GetComponent<Player>();
-                if (playerScript != null)
+                Player player = hit.GetComponent<Player>();
+                if (player != null)
                 {
-                    playerScript.TakeDamage(((BossZombie)_zombie)._aoeDamage);
-                    playerScript.Stun(((BossZombie)_zombie)._stunDuration);
+                    player.TakeDamage(((BossZombie)_zombie)._aoeDamage);
+                    // player.Stun(((BossZombie)_zombie)._stunDuration);
                 }
             }
         }

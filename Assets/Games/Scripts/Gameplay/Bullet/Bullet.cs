@@ -48,7 +48,7 @@ public class Bullet : MonoBehaviour
 
     public virtual void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"hit {other.name}");
+        // Debug.Log($"hit {other.name}");
         if (_radius > 0)
         {
             Explode();
@@ -61,11 +61,15 @@ public class Bullet : MonoBehaviour
 
     private void HitEnemies(Collider other)
     {
-        Target target = other.GetComponent<Target>();
-        if (target != null)
+        if (other.GetComponent<Target>())
         {
-            target.TakeDamage(_damage);
+            other.GetComponent<Target>().TakeDamage(_damage);
         }
+        else if(other.GetComponent<Player>())
+        {
+            other.GetComponent<Player>().TakeDamage(_damage);
+        }
+        
         if (_hitVFX != null)
         {
             Instantiate(_hitVFX, transform.position, transform.rotation);
@@ -77,6 +81,7 @@ public class Bullet : MonoBehaviour
         Collider[] colliders = Physics.OverlapSphere(transform.position, _radius);
         foreach (var collider in colliders)
         {
+            Debug.Log(collider.name);
             HitEnemies(collider);
         }
 

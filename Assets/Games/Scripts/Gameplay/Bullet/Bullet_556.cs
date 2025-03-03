@@ -10,7 +10,7 @@ public class Bullet_556 : Bullet, IPoolable<Vector3, IMemoryPool>, IDisposable
     public override void OnTriggerEnter(Collider other)
     {
         base.OnTriggerEnter(other);
-        Dispose();
+        // Dispose();
     }
 
     public void OnDespawned()
