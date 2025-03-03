@@ -19,6 +19,8 @@ public class BossZombie : Zombie
     [SerializeField] private Gun _currentGun;
     [SerializeField] private new BossZombieData _zombieData;
     
+    [SerializeField] private GameObject _aoeIndicator;
+    
     private EntityIntaller.Settings _entitySettings;
     private M4A1.Factory _m4a1Factory;
     protected float _lastUsingSkill;
@@ -49,7 +51,6 @@ public class BossZombie : Zombie
         
         _currentGun = SpawnGuns(_gunId);
         SetState(ZombieStateType.Idle);
-        _lastUsingSkill = Time.time;
     }
     
     private Gun SpawnGuns(string gunId)
@@ -259,22 +260,30 @@ public class BossZombie : Zombie
     
     private class PreparingAOEState : ZombieState
     {
-        private float timer;
+        private float _timer;
 
         public PreparingAOEState(Zombie zombie) : base(zombie, ZombieStateType.PreparingAOE) { }
 
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
-            timer = 0f;
+            _timer = 0f;
             ShowAOEIndicator();
+            ((BossZombie)_zombie)._lastUsingSkill = Time.time;
         }
 
         public override void UpdateState()
         {
-            timer += Time.deltaTime;
-            Debug.Log("Còn " + timer + " là nổ.");
-            if (timer >= ((BossZombie)_zombie)._aoePreparationTime)
+            _timer += Time.deltaTime;
+            
+            if (((BossZombie)_zombie)._aoeIndicator != null)
+            {
+                float progress = _timer / ((BossZombie)_zombie)._aoePreparationTime;
+                float scale = Mathf.Lerp(0.1f, ((BossZombie)_zombie)._aoeRadius * 2, progress);
+                ((BossZombie)_zombie)._aoeIndicator.transform.localScale = new Vector3(scale, 0.01f, scale);
+            }
+            
+            if (_timer >= ((BossZombie)_zombie)._aoePreparationTime)
             {
                 TriggerAOE();
                 _zombie.SetState(ZombieStateType.Idle);
@@ -283,11 +292,17 @@ public class BossZombie : Zombie
 
         private void ShowAOEIndicator()
         {
-            Debug.Log("Hiển thị chỉ báo AOE với bán kính " + ((BossZombie)_zombie)._aoeRadius);
+            ((BossZombie)_zombie)._aoeIndicator.SetActive(true);
+            ((BossZombie)_zombie)._aoeIndicator.transform.localScale = Vector3.zero;
         }
 
         private void TriggerAOE()
         {
+            if (((BossZombie)_zombie)._aoeIndicator != null)
+            {
+                ((BossZombie)_zombie)._aoeIndicator.SetActive(false);
+            }
+            
             Collider[] hitColliders = Physics.OverlapSphere(_zombie.transform.position, ((BossZombie)_zombie)._aoeRadius);
             foreach (Collider hit in hitColliders)
             {
@@ -300,7 +315,10 @@ public class BossZombie : Zombie
             }
         }
 
-        public override void ExitState() { }
+        public override void ExitState()
+        {
+            ((BossZombie)_zombie)._aoeIndicator.SetActive(false);
+        }
     }
     private class DeadState : ZombieState
     {

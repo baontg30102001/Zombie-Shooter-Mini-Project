@@ -16,7 +16,7 @@ public class GameplayManager : MonoBehaviour
     private void Start()
     {
         SpawnPlayer();
-        SpawmZombie();
+        // SpawmZombie();
     }
 
     private void SpawnPlayer()
@@ -24,9 +24,9 @@ public class GameplayManager : MonoBehaviour
         _player.Initialize();
     }
 
-    private void SpawmZombie()
-    {
-        // _zombie.InitializeFromData("zb_001");
-        _zombie.InitializeFromData("zb_201");
-    }
+    // private void SpawmZombie()
+    // {
+    //     // _zombie.InitializeFromData("zb_001");
+    //     _zombie.InitializeFromData("zb_201");
+    // }
 }
