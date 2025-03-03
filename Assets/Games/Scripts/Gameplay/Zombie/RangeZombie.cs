@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DamageNumbersPro.Demo;
+using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 
@@ -7,15 +8,22 @@ public class RangeZombie : Zombie
     protected float _attackRangeDistance;
     protected string _gunId;
     protected float _safeDistance;
+
+    [SerializeField] private Transform _gunPosition;
+    [SerializeField] private Gun _currentGun;
     
     [SerializeField] private new RangeZombieData _zombieData;
     
     private EntityIntaller.Settings _entitySettings;
 
+    private M4A1.Factory _m4a1Factory;
+    
     [Inject]
-    public void Construct(EntityIntaller.Settings entitySettings)
+    public void Construct(EntityIntaller.Settings entitySettings,
+        M4A1.Factory m4a1Factory)
     {
         _entitySettings = entitySettings;
+        _m4a1Factory = m4a1Factory;
     }
     public override void InitializeFromData(string zombieId)
     {
@@ -25,10 +33,33 @@ public class RangeZombie : Zombie
         _attackRangeDistance = _zombieData.attackRangeDistance;
         _gunId = _zombieData.gunId;
         _safeDistance = _zombieData.safeDistance;
+        
+        _currentGun = SpawnGuns(_gunId);
+        SetState(ZombieStateType.Idle);
     }
     
+    private Gun SpawnGuns(string gunId)
+    {
+        Gun gun = CreateGuns(gunId);
+        gun.Initialize(gunId);
+        gun.transform.SetParent(_gunPosition, false);
+        
+        return gun;
+    }
+
+    private Gun CreateGuns(string gunId) => gunId switch
+    {
+        GameDefine.GunEntity.M4A1 => _m4a1Factory.Create(),
+        //Default
+        _ => _m4a1Factory.Create(),
+    };
+
+    #region State Machine
+
     protected override ZombieState CreateState(ZombieStateType stateType)
     {
+        Debug.Log(stateType);
+
         switch (stateType)
         {
             case ZombieStateType.Idle:
@@ -136,7 +167,6 @@ public class RangeZombie : Zombie
     }
     private class AttackingState : ZombieState
     {
-        private float lastAttackTime;
         private float attackCooldown = 1f; // Có thể thêm vào RangeZombieData nếu cần
 
         public AttackingState(Zombie zombie) : base(zombie, ZombieStateType.Attacking) { }
@@ -144,16 +174,11 @@ public class RangeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
-            lastAttackTime = Time.time;
         }
 
         public override void UpdateState()
         {
-            if (Time.time - lastAttackTime >= attackCooldown)
-            {
-                ShootPlayer();
-                lastAttackTime = Time.time;
-            }
+            ShootPlayer();
 
             float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
             if (distanceToPlayer < ((RangeZombie)_zombie)._safeDistance)
@@ -168,11 +193,34 @@ public class RangeZombie : Zombie
 
         private void ShootPlayer()
         {
-            Player playerScript = _zombie.GetPlayer();
-            if (playerScript != null)
+            Player player = _zombie.GetPlayer();
+            if (player != null)
             {
-                playerScript.TakeDamage(10f); // Giả định sát thương, có thể lấy từ hệ thống vũ khí dựa trên gunId
+                Vector3 worldAimTarget = player.transform.position;
+                worldAimTarget.y = _zombie.transform.position.y;
+                Vector3 aimDirection = (worldAimTarget - _zombie.transform.position).normalized;
+
+                float angleToTarget = Vector3.Angle(_zombie.transform.forward, aimDirection);
+
+                var playerPosition = new Vector3(
+                    player.transform.position.x,
+                    player.transform.position.y + player.GetComponent<CharacterController>().height * 0.66f,
+                    player.transform.position.z);
+                
+                if (angleToTarget <= 0.1f)
+                {
+                    ((RangeZombie)_zombie)._currentGun.Shoot(playerPosition);
+                }
+                else
+                {
+                    RotateTowardsTarget(aimDirection);
+                }
             }
+        }
+        
+        private void RotateTowardsTarget(Vector3 aimDirection)
+        {
+            _zombie.transform.forward = Vector3.Lerp(_zombie.transform.forward, aimDirection, Time.deltaTime * 20f);
         }
 
         public override void ExitState() { }
@@ -226,6 +274,9 @@ public class RangeZombie : Zombie
 
         public override void ExitState() { }
     }
+
+    #endregion 
+    
 
     public class Factory : PlaceholderFactory<RangeZombie>
     {

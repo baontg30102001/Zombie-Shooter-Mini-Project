@@ -88,6 +88,11 @@ public class Gun : MonoBehaviour
             
             Bullet bullet = SpawnBullet(_bulletData, aimDir);
             bullet.Shooting();
+
+            if (_ammo <= 0 && _magazineMax != 0)
+            {  
+                Reload();
+            }
         }
     }
 

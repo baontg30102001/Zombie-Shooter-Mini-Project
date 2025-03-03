@@ -31,7 +31,6 @@ public class MeleeZombie : Zombie
     
     protected override ZombieState CreateState(ZombieStateType stateType)
     {
-        Debug.Log(stateType);
         switch (stateType)
         {
             case ZombieStateType.Idle:

@@ -8,6 +8,9 @@ public partial class Player : MonoBehaviour
     [FoldoutGroup("Player Setup"), SerializeField]
     private CinemachineCamera _aimCamera;
 
+    [FoldoutGroup("Player Setup"), SerializeField]
+    private GameObject _gameObject;
+
     [FoldoutGroup("Player Shooting"), SerializeField]
     private LayerMask _shootColliderLayerMask;
 
@@ -26,7 +29,7 @@ public partial class Player : MonoBehaviour
     private const float _shootAngleThreshold = 45f;
     private GameObject _aoeIndicatorInstance;
     private bool _isAimingGrenadeLauncher;
-
+    
     private void HandlerWeapon()
     {
         if (_currentGun == null) return;
@@ -67,11 +70,18 @@ public partial class Player : MonoBehaviour
 
     private void HandleNormalGun()
     {
+        Vector3 worldAimTarget = GetTargetPosition();
+        worldAimTarget.y = transform.position.y;
+        Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
+
+        _gameObject.transform.position = GetTargetPosition();
+        
         if (_inputSystem.shoot)
         {
-            Vector3 worldAimTarget = GetTargetPosition();
-            worldAimTarget.y = transform.position.y;
-            Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
+            if (_hasAnimator)
+            {
+                _animator.SetBool(_animIDAim, true);
+            }
 
             _aimCamera.gameObject.SetActive(true);
             _sensitivity = _shootSensitivity;
@@ -91,6 +101,11 @@ public partial class Player : MonoBehaviour
         }
         else
         {
+            if (_hasAnimator)
+            {
+                _animator.SetBool(_animIDAim, false);
+            }
+            RotateTowardsTarget(aimDirection);
             _aimCamera.gameObject.SetActive(false);
             _sensitivity = _normalSensitivity;
             _rotateOnMove = true;
@@ -103,18 +118,28 @@ public partial class Player : MonoBehaviour
         worldAimTarget.y = transform.position.y;
         Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
 
+        _gameObject.transform.position = GetTargetPosition();
+        
         if (_inputSystem.shoot && !_isAimingGrenadeLauncher)
         {
+            Debug.Log("A");
+            if (_hasAnimator)
+            {
+                _animator.SetBool(_animIDAim, true);
+            }
             _isAimingGrenadeLauncher = true;
             _aimCamera.gameObject.SetActive(true);
             _sensitivity = _shootSensitivity;
             _rotateOnMove = false;
             _aoeIndicatorInstance.SetActive(true);
-            
             (_currentGun as M32A1).LineRenderer.gameObject.SetActive(true);
         }
         else if (!_inputSystem.shoot && _isAimingGrenadeLauncher)
         {
+            if (_hasAnimator)
+            {
+                _animator.SetBool(_animIDAim, false);
+            }
             _isAimingGrenadeLauncher = false;
             _aimCamera.gameObject.SetActive(false);
             _sensitivity = _normalSensitivity;
@@ -129,6 +154,16 @@ public partial class Player : MonoBehaviour
             DrawProjection();
             RotateTowardsTarget(aimDirection);
         }
+        // else
+        // {
+        //     if (_hasAnimator)
+        //     {
+        //         _animator.SetBool(_animIDAim, false);
+        //     }
+        //     _aimCamera.gameObject.SetActive(false);
+        //     _sensitivity = _normalSensitivity;
+        //     _rotateOnMove = true;
+        // }
     }
 
     private Vector3 GetTargetPosition()

@@ -85,6 +85,7 @@ public partial class Player : MonoBehaviour
     private int _animIDJump;
     private int _animIDFreeFall;
     private int _animIDMotionSpeed;
+    private int _animIDAim;
 
     private bool _rotateOnMove = true;
     private const float _threshold = 0.01f;
@@ -110,6 +111,7 @@ public partial class Player : MonoBehaviour
         _animIDJump = Animator.StringToHash("Jump");
         _animIDFreeFall = Animator.StringToHash("FreeFall");
         _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+        _animIDAim = Animator.StringToHash("Aim");
     }
     
 
