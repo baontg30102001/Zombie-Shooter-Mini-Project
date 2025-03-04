@@ -8,10 +8,15 @@ public class MeleeZombie : Zombie
     protected float _attackMeleeDistance;
     protected float _cooldownMeleeAttack;
     
+    [SerializeField] private Animator _animator;
     [SerializeField] private MeleeZombieData _zombieData;
     
     private EntityIntaller.Settings _entitySettings;
 
+    private int _animIDAttack;
+
+    public Animator Animator => _animator;
+    
     [Inject]
     public void Construct(EntityIntaller.Settings entitySettings)
     {
@@ -21,14 +26,46 @@ public class MeleeZombie : Zombie
     public override void InitializeFromData(string zombieId)
     {
         base.InitializeFromData(zombieId);
-
         _zombieData = _entitySettings.GetMeleeZombieDataById(zombieId);
+
+        _zombieId = zombieId;
+        _hp = _zombieData.hP;
+        _moveSpeed = _zombieData.moveSpeed;
         _damage = _zombieData.damage;
+        _detectionRange = _zombieData.detectionRange;
         _attackMeleeDistance = _zombieData.attackMeleeDistance;
         _cooldownMeleeAttack = _zombieData.cooldownMeleeAttack;
+
+        AssignAnimationIDs();
+        
         SetState(ZombieStateType.Idle);
     }
+
+    protected override void AssignAnimationIDs()
+    {
+        base.AssignAnimationIDs();
+        _animIDAttack = Animator.StringToHash("Attack");
+    }
+
+    private void OnAttack(AnimationEvent animationEvent)
+    {
+        AttackPlayer();
+    }
+
+    private void OnDeath(AnimationEvent animationEvent)
+    {
+        gameObject.SetActive(false);
+    }
     
+    private void AttackPlayer()
+    {
+        Player playerScript = GetPlayer();
+        if (playerScript != null)
+        {
+            playerScript.TakeDamage(_damage);
+        }
+    }
+
     protected override ZombieState CreateState(ZombieStateType stateType)
     {
         switch (stateType)
@@ -56,6 +93,10 @@ public class MeleeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true; // Dừng di chuyển
+            if (((MeleeZombie)_zombie)._animator != null)
+            {
+                ((MeleeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+            }
         }
 
         public override void UpdateState()
@@ -80,6 +121,10 @@ public class MeleeZombie : Zombie
             _zombie.GetNavMeshAgent().isStopped = false;
             patrolPoint = GetRandomNavMeshPoint();
             _zombie.GetNavMeshAgent().destination = patrolPoint;
+            if (((MeleeZombie)_zombie)._animator != null)
+            {
+                ((MeleeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((MeleeZombie)_zombie)._moveSpeed);
+            }
         }
 
         public override void UpdateState()
@@ -112,6 +157,10 @@ public class MeleeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = false;
+            if (((MeleeZombie)_zombie)._animator != null)
+            {
+                ((MeleeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((MeleeZombie)_zombie)._moveSpeed);
+            }
         }
 
         public override void UpdateState()
@@ -141,34 +190,53 @@ public class MeleeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
+            if (((MeleeZombie)_zombie)._animator != null)
+            {
+                ((MeleeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+            }
             _lastAttackTime = Time.time;
         }
 
         public override void UpdateState()
         {
+            
             if (Time.time - _lastAttackTime >= ((MeleeZombie)_zombie)._cooldownMeleeAttack)
             {
-                AttackPlayer();
+                Vector3 worldAimTarget = _zombie.GetPlayer().transform.position;
+                worldAimTarget.y = _zombie.transform.position.y;
+                Vector3 aimDirection = (worldAimTarget - _zombie.transform.position).normalized;
+
+                RotateTowardsTarget(aimDirection);
+                
+                if (((MeleeZombie)_zombie)._animator != null)
+                {
+                    ((MeleeZombie)_zombie)._animator.SetBool(((MeleeZombie)_zombie)._animIDAttack, true);
+                }
                 _lastAttackTime = Time.time;
             }
 
             float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
             if (distanceToPlayer > ((MeleeZombie)_zombie)._attackMeleeDistance)
             {
+                if (((MeleeZombie)_zombie)._animator != null)
+                {
+                    ((MeleeZombie)_zombie)._animator.SetBool(((MeleeZombie)_zombie)._animIDAttack, false);
+                }
                 _zombie.SetState(ZombieStateType.Chasing);
             }
         }
 
-        private void AttackPlayer()
+        public override void ExitState()
         {
-            Player playerScript = _zombie.GetPlayer();
-            if (playerScript != null)
+            if (((MeleeZombie)_zombie)._animator != null)
             {
-                playerScript.TakeDamage(((MeleeZombie)_zombie)._damage);
+                ((MeleeZombie)_zombie)._animator.SetBool(((MeleeZombie)_zombie)._animIDAttack, false);
             }
         }
-
-        public override void ExitState() { }
+        private void RotateTowardsTarget(Vector3 aimDirection)
+        {
+            _zombie.transform.forward = Vector3.Lerp(_zombie.transform.forward, aimDirection, Time.deltaTime * 20f);
+        }
     }
 
     private class DeadState : ZombieState
@@ -178,7 +246,11 @@ public class MeleeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
-            _zombie.gameObject.SetActive(false); // Hoặc thêm hiệu ứng chết
+            if (((MeleeZombie)_zombie)._animator != null)
+            {
+                ((MeleeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+                ((MeleeZombie)_zombie)._animator.SetTrigger(_zombie.AnimIdDeath);
+            }
         }
 
         public override void UpdateState() { }

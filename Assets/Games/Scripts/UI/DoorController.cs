@@ -1,15 +1,22 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
-    private void OnCollisionEnter(Collision other)
+    [SerializeField] private string _requireKey = "key_001";
+    private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.gameObject.name);
         if (other.gameObject.CompareTag("Player"))
         {
-            _animator.SetTrigger("Open");
+            Player player = other.GetComponent<Player>();
+            if (player.Inventory.FirstOrDefault(s => s == _requireKey) != null)
+            {
+                _animator.SetTrigger("Open");
+                player.Inventory.Remove(_requireKey);
+                this.GetComponent<BoxCollider>().enabled = false;
+            }
         }
     }
 }

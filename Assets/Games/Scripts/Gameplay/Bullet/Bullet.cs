@@ -9,7 +9,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float _speed = 10f;
     [SerializeField] private float _damage = 20;
     [SerializeField] protected float _lifeTime;
-    [SerializeField] private float _radius = 0f;
+    [SerializeField] protected float _radius = 0f;
     [SerializeField] private float _gravity = 0f;
     [SerializeField] private BulletType _bulletType;
     [SerializeField] private GameObject _hitVFX;
@@ -61,13 +61,13 @@ public class Bullet : MonoBehaviour
 
     private void HitEnemies(Collider other)
     {
-        if (other.GetComponent<Target>())
+        if (other.TryGetComponent<Zombie>(out var zombie))
         {
-            other.GetComponent<Target>().TakeDamage(_damage);
+            zombie.TakeDamage(_damage);
         }
-        else if(other.GetComponent<Player>())
+        else if(other.TryGetComponent<Player>(out var player))
         {
-            other.GetComponent<Player>().TakeDamage(_damage);
+            player.TakeDamage(_damage);
         }
         
         if (_hitVFX != null)
@@ -81,7 +81,7 @@ public class Bullet : MonoBehaviour
         Collider[] colliders = Physics.OverlapSphere(transform.position, _radius);
         foreach (var collider in colliders)
         {
-            Debug.Log(collider.name);
+            
             HitEnemies(collider);
         }
 

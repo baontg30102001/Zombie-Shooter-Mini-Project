@@ -11,7 +11,7 @@ public partial class Player : MonoBehaviour
     [SerializeField] private float _maxHP = 100;
     [SerializeField] private Gun _currentGun;
     [SerializeField] private List<Gun> _gunInInventory;
-    [SerializeField] private Dictionary<string, int> _inventory;
+    [SerializeField] private List<string> _inventory;
     
     private EntityIntaller.Settings _entityConfig;
     private PlayerData _playerData = new PlayerData();
@@ -23,6 +23,11 @@ public partial class Player : MonoBehaviour
 
     #endregion
 
+    public List<string> Inventory
+    {
+        get => _inventory;
+        set => _inventory = value;
+    }
     public float GetPlayerHP() => _hp;
     public float GetPlayerMaxHP() => _maxHP;
     public Gun CurrentGun

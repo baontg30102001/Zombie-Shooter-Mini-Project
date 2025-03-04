@@ -11,11 +11,12 @@ public class RangeZombie : Zombie
 
     [SerializeField] private Transform _gunPosition;
     [SerializeField] private Gun _currentGun;
-    
+    [SerializeField] private Animator _animator;
     [SerializeField] private new RangeZombieData _zombieData;
     
+    private int _animIDAim;
+    
     private EntityIntaller.Settings _entitySettings;
-
     private M4A1.Factory _m4a1Factory;
     
     [Inject]
@@ -28,14 +29,26 @@ public class RangeZombie : Zombie
     public override void InitializeFromData(string zombieId)
     {
         base.InitializeFromData(zombieId);
-
         _zombieData = _entitySettings.GetRangeZombieDataById(zombieId);
+
+        _zombieId = zombieId;
+        _hp = _zombieData.hP;
+        _moveSpeed = _zombieData.moveSpeed;
+        _detectionRange = _zombieData.detectionRange;
         _attackRangeDistance = _zombieData.attackRangeDistance;
         _gunId = _zombieData.gunId;
         _safeDistance = _zombieData.safeDistance;
-        
         _currentGun = SpawnGuns(_gunId);
+
+        AssignAnimationIDs();
+        
         SetState(ZombieStateType.Idle);
+    }
+    
+    protected override void AssignAnimationIDs()
+    {
+        base.AssignAnimationIDs();
+        _animIDAim = Animator.StringToHash("Aim");
     }
     
     private Gun SpawnGuns(string gunId)
@@ -43,6 +56,7 @@ public class RangeZombie : Zombie
         Gun gun = CreateGuns(gunId);
         gun.Initialize(gunId);
         gun.transform.SetParent(_gunPosition, false);
+        gun.gameObject.SetActive(true);
         
         return gun;
     }
@@ -53,6 +67,11 @@ public class RangeZombie : Zombie
         //Default
         _ => _m4a1Factory.Create(),
     };
+    
+    private void OnDeath(AnimationEvent animationEvent)
+    {
+        gameObject.SetActive(false);
+    }
 
     #region State Machine
 
@@ -87,6 +106,10 @@ public class RangeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+            }
         }
 
         public override void UpdateState()
@@ -111,6 +134,10 @@ public class RangeZombie : Zombie
             _zombie.GetNavMeshAgent().isStopped = false;
             patrolPoint = GetRandomNavMeshPoint();
             _zombie.GetNavMeshAgent().destination = patrolPoint;
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((RangeZombie)_zombie)._moveSpeed);
+            }
         }
 
         public override void UpdateState()
@@ -142,6 +169,10 @@ public class RangeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = false;
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((RangeZombie)_zombie)._moveSpeed);
+            }
         }
 
         public override void UpdateState()
@@ -174,6 +205,11 @@ public class RangeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0);
+                ((RangeZombie)_zombie)._animator.SetBool(((RangeZombie)_zombie)._animIDAim, true);
+            }
         }
 
         public override void UpdateState()
@@ -225,7 +261,13 @@ public class RangeZombie : Zombie
             _zombie.transform.forward = Vector3.Lerp(_zombie.transform.forward, aimDirection, Time.deltaTime * 20f);
         }
 
-        public override void ExitState() { }
+        public override void ExitState()
+        {
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetBool(((RangeZombie)_zombie)._animIDAim, false);
+            }
+        }
     }
     
     private class AvoidingState : ZombieState
@@ -243,6 +285,10 @@ public class RangeZombie : Zombie
             if (NavMesh.SamplePosition(avoidPoint, out hit, 5f, NavMesh.AllAreas))
             {
                 _zombie.GetNavMeshAgent().destination = hit.position;
+            }
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((RangeZombie)_zombie)._moveSpeed);
             }
         }
 
@@ -269,7 +315,11 @@ public class RangeZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
-            _zombie.gameObject.SetActive(false);
+            if (((RangeZombie)_zombie)._animator != null)
+            {
+                ((RangeZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+                ((RangeZombie)_zombie)._animator.SetTrigger(_zombie.AnimIdDeath);
+            }
         }
 
         public override void UpdateState() { }

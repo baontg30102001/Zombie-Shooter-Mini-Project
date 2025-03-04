@@ -54,7 +54,7 @@ MonoBehaviour:
       bulletId: bullet_301
       bulletName: 40mm
       bulletDamage: 30
-      bulletLifetime: 10
+      bulletLifetime: 20
       bulletSpeed: 15
       bulletRadius: 3
       bulletGravity: 9.81
@@ -76,12 +76,12 @@ MonoBehaviour:
       detectionRange: 10
       attackMeleeDistance: 2
       damage: 10
-      cooldownMeleeAttack: 0.5
+      cooldownMeleeAttack: 0
     RangeZombieDatas:
     - entityId: zb_101
       hP: 100
       moveSpeed: 2
-      detectionRange: 10
+      detectionRange: 15
       attackRangeDistance: 10
       safeDistance: 5
       gunId: gun_201

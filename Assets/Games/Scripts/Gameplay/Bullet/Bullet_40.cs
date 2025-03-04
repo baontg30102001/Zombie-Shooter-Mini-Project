@@ -37,6 +37,11 @@ public class Bullet_40 : Bullet, IPoolable<Vector3, IMemoryPool>, IDisposable
         _pool.Despawn(this);
     }
     
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(transform.position, _radius);
+    }
+    
     public class Factory : PlaceholderFactory<Vector3, Bullet_40>
     {
        

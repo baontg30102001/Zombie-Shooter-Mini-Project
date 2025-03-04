@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
@@ -229,6 +230,12 @@ public partial class Player : MonoBehaviour
         }
 
         _aoeIndicatorInstance.transform.position = position;
-        _aoeIndicatorInstance.transform.localScale = Vector3.one * _currentGun.GetBulletRadius() * 2; // Scale theo radius
+        // _aoeIndicatorInstance.transform.localScale = Vector3.one * _currentGun.GetBulletRadius() * 2; // Scale theo radius
     }
+
+    // private void OnDrawGizmos()
+    // {
+    //     if (_aoeIndicatorPrefab == null) return;
+    //     Gizmos.DrawSphere(_aoeIndicatorInstance.transform.position, _currentGun.GetBulletRadius());
+    // }
 }
