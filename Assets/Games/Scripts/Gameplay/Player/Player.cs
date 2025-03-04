@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using Zenject;
 
 public partial class Player : MonoBehaviour
@@ -12,6 +9,7 @@ public partial class Player : MonoBehaviour
     [SerializeField] private Gun _currentGun;
     [SerializeField] private List<Gun> _gunInInventory;
     [SerializeField] private List<string> _inventory;
+    [SerializeField] private UIGameplay _uiGameplay;
     
     private EntityIntaller.Settings _entityConfig;
     private PlayerData _playerData = new PlayerData();
@@ -43,6 +41,8 @@ public partial class Player : MonoBehaviour
             _currentGun.gameObject.SetActive(true);
         }
     }
+
+    public UIGameplay GetUIGameplay() => _uiGameplay;
     
     [Inject]
     public void Construct(
@@ -96,6 +96,7 @@ public partial class Player : MonoBehaviour
         gun.Initialize(gunId);
         gun.transform.SetParent(_gunPosition, false);
         gun.gameObject.SetActive(false);
+        gun.SetPlayer(this);
         
         return gun;
     }

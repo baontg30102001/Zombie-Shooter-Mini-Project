@@ -200,19 +200,15 @@ public class MeleeZombie : Zombie
         public override void UpdateState()
         {
             
-            if (Time.time - _lastAttackTime >= ((MeleeZombie)_zombie)._cooldownMeleeAttack)
-            {
-                Vector3 worldAimTarget = _zombie.GetPlayer().transform.position;
-                worldAimTarget.y = _zombie.transform.position.y;
-                Vector3 aimDirection = (worldAimTarget - _zombie.transform.position).normalized;
+            Vector3 worldAimTarget = _zombie.GetPlayer().transform.position;
+            worldAimTarget.y = _zombie.transform.position.y;
+            Vector3 aimDirection = (worldAimTarget - _zombie.transform.position).normalized;
 
-                RotateTowardsTarget(aimDirection);
+            RotateTowardsTarget(aimDirection);
                 
-                if (((MeleeZombie)_zombie)._animator != null)
-                {
-                    ((MeleeZombie)_zombie)._animator.SetBool(((MeleeZombie)_zombie)._animIDAttack, true);
-                }
-                _lastAttackTime = Time.time;
+            if (((MeleeZombie)_zombie)._animator != null)
+            {
+                ((MeleeZombie)_zombie)._animator.SetBool(((MeleeZombie)_zombie)._animIDAttack, true);
             }
 
             float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);

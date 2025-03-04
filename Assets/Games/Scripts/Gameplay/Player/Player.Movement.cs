@@ -198,7 +198,7 @@ public partial class Player : MonoBehaviour
 
     private void Move()
     {
-        float targetSpeed = _inputSystem.sprint ? _sprintSpeed : _moveSpeed;
+        float targetSpeed = _inputSystem.sprint ? _sprintSpeed * _currentGun.GetGunWeight() : _moveSpeed * _currentGun.GetGunWeight();
 
         if (_inputSystem.move == Vector2.zero)
         {

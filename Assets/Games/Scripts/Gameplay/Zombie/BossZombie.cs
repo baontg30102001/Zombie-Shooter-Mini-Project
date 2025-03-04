@@ -17,12 +17,18 @@ public class BossZombie : Zombie
     
     [SerializeField] private Transform _gunPosition;
     [SerializeField] private Gun _currentGun;
+    [SerializeField] private Animator _animator;
     [SerializeField] private new BossZombieData _zombieData;
     
     [SerializeField] private GameObject _aoeIndicator;
+
+    private int _animIDAim;
+    private int _animIDSkill;
+    private int _animIDAttack;
     
     private EntityIntaller.Settings _entitySettings;
     private M4A1.Factory _m4a1Factory;
+    
     protected float _lastUsingSkill;
 
     [Inject]
@@ -38,7 +44,11 @@ public class BossZombie : Zombie
         base.InitializeFromData(zombieId);
 
         _zombieData = _entitySettings.GetBossZombieDataById(zombieId);
-        
+
+        _zombieId = zombieId;
+        _hp = _zombieData.hP;
+        _moveSpeed = _zombieData.moveSpeed;
+        _detectionRange = _zombieData.detectionRange;
         _gunId = _zombieData.gunId;
         _damage = _zombieData.damage;
         _attackMeleeDistance = _zombieData.attackMeleeDistance;
@@ -50,6 +60,9 @@ public class BossZombie : Zombie
         _cooldownSkill = _zombieData.cooldownSkill;
         
         _currentGun = SpawnGuns(_gunId);
+        
+        AssignAnimationIDs();
+        
         SetState(ZombieStateType.Idle);
     }
     
@@ -58,6 +71,7 @@ public class BossZombie : Zombie
         Gun gun = CreateGuns(gunId);
         gun.Initialize(gunId);
         gun.transform.SetParent(_gunPosition, false);
+        gun.gameObject.SetActive(true);
         
         return gun;
     }
@@ -68,6 +82,33 @@ public class BossZombie : Zombie
         //Default
         _ => _m4a1Factory.Create(),
     };
+
+    private void OnAttack(AnimationEvent animationEvent)
+    {
+        AttackPlayer();
+    }
+
+    private void OnDeath(AnimationEvent animationEvent)
+    {
+        gameObject.SetActive(false);
+    }
+
+    private void AttackPlayer()
+    {
+        Player playerScript = GetPlayer();
+        if (playerScript != null)
+        {
+            playerScript.TakeDamage(_damage);
+        }
+    }
+    
+    protected override void AssignAnimationIDs()
+    {
+        base.AssignAnimationIDs();
+        _animIDAttack = Animator.StringToHash("Attack");
+        _animIDAim = Animator.StringToHash("Aim");
+        _animIDSkill = Animator.StringToHash("Skill");
+    }
 
     protected override ZombieState CreateState(ZombieStateType stateType)
     {
@@ -97,6 +138,10 @@ public class BossZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+            }
         }
 
         public override void UpdateState()
@@ -121,6 +166,10 @@ public class BossZombie : Zombie
             _zombie.GetNavMeshAgent().isStopped = false;
             patrolPoint = GetRandomNavMeshPoint();
             _zombie.GetNavMeshAgent().destination = patrolPoint;
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((BossZombie)_zombie)._moveSpeed);
+            }
         }
 
         public override void UpdateState()
@@ -152,6 +201,10 @@ public class BossZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = false;
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, ((BossZombie)_zombie)._moveSpeed);
+            }
         }
 
         public override void UpdateState()
@@ -174,17 +227,23 @@ public class BossZombie : Zombie
     
     private class AttackingState : ZombieState
     {
-        private float lastAttackTime;
         public AttackingState(Zombie zombie) : base(zombie, ZombieStateType.Attacking) { }
 
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
-            lastAttackTime = Time.time;
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0);
+            }
         }
 
         public override void UpdateState()
         {
+            Vector3 worldAimTarget = _zombie.GetPlayer().transform.position;
+            worldAimTarget.y = _zombie.transform.position.y;
+            Vector3 aimDirection = (worldAimTarget - _zombie.transform.position).normalized;
+            
             float distanceToPlayer = Vector3.Distance(_zombie.transform.position, _zombie.GetPlayer().transform.position);
             
             if (Random.value < 0.01f) // 1% cơ hội kích hoạt AOE
@@ -198,15 +257,21 @@ public class BossZombie : Zombie
 
             if (distanceToPlayer <= ((BossZombie)_zombie)._attackMeleeDistance)
             {
-                if (Time.time - lastAttackTime >= ((BossZombie)_zombie)._cooldownMeleeAttack)
+                RotateTowardsTarget(aimDirection);
+
+                if (((BossZombie)_zombie)._animator != null)
                 {
-                    Debug.Log("Melee");
-                    AttackPlayer();
-                    lastAttackTime = Time.time;
+                    ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDAttack, true);
+                    ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDAim, false);
                 }
             }
             else if(distanceToPlayer <= ((BossZombie)_zombie)._attackRangeDistance)
             {
+                if (((BossZombie)_zombie)._animator != null)
+                {
+                    ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDAttack, false);
+                    ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDAim, true);
+                }
                 ShootPlayer();
             }
             else if(distanceToPlayer <= _zombie.GetDetectionRange())
@@ -215,14 +280,6 @@ public class BossZombie : Zombie
             }
         }
 
-        private void AttackPlayer()
-        {
-            Player player = _zombie.GetPlayer();
-            if (player != null)
-            {
-                player.TakeDamage(((BossZombie)_zombie)._damage);
-            }
-        }
         private void ShootPlayer()
         {
             Player player = _zombie.GetPlayer();
@@ -255,7 +312,14 @@ public class BossZombie : Zombie
             _zombie.transform.forward = Vector3.Lerp(_zombie.transform.forward, aimDirection, Time.deltaTime * 20f);
         }
 
-        public override void ExitState() { }
+        public override void ExitState()
+        {
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDAttack, false);
+                ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDAim, false);
+            }
+        }
     }
     
     private class PreparingAOEState : ZombieState
@@ -270,6 +334,11 @@ public class BossZombie : Zombie
             _timer = 0f;
             ShowAOEIndicator();
             ((BossZombie)_zombie)._lastUsingSkill = Time.time;
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0);
+                ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDSkill, true);
+            }
         }
 
         public override void UpdateState()
@@ -310,7 +379,6 @@ public class BossZombie : Zombie
                 if (player != null)
                 {
                     player.TakeDamage(((BossZombie)_zombie)._aoeDamage);
-                    // player.Stun(((BossZombie)_zombie)._stunDuration);
                 }
             }
         }
@@ -318,6 +386,11 @@ public class BossZombie : Zombie
         public override void ExitState()
         {
             ((BossZombie)_zombie)._aoeIndicator.SetActive(false);
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0);
+                ((BossZombie)_zombie)._animator.SetBool(((BossZombie)_zombie)._animIDSkill, false); ;
+            }
         }
     }
     private class DeadState : ZombieState
@@ -327,7 +400,11 @@ public class BossZombie : Zombie
         public override void EnterState()
         {
             _zombie.GetNavMeshAgent().isStopped = true;
-            _zombie.gameObject.SetActive(false);
+            if (((BossZombie)_zombie)._animator != null)
+            {
+                ((BossZombie)_zombie)._animator.SetFloat(_zombie.AnimIdSpeed, 0f);
+                ((BossZombie)_zombie)._animator.SetTrigger(_zombie.AnimIdDeath);
+            }
         }
 
         public override void UpdateState() { }

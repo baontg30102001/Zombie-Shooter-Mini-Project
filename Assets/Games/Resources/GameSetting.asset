@@ -20,10 +20,11 @@ MonoBehaviour:
       gunId: gun_201
       gunName: M4A1
       bulletId: bullet_201
-      gunImage: {fileID: 0}
+      gunImage: {fileID: 404145619, guid: 5ae2403cc995967489df53645978f4da, type: 3}
       magazineSize: 30
-      fireRate: 0.2
-      reloadTime: 0.5
+      fireRate: 0.53
+      reloadTime: 3
+      gunWeight: 0.7
       impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
       shootSFX: {fileID: 0}
       reloadSFX: {fileID: 0}
@@ -31,10 +32,11 @@ MonoBehaviour:
       gunId: gun_301
       gunName: M32A1
       bulletId: bullet_301
-      gunImage: {fileID: 0}
+      gunImage: {fileID: 1914817157, guid: 8222bc7920b828d4798d7004a9152c53, type: 3}
       magazineSize: 6
       fireRate: 0
-      reloadTime: 0.5
+      reloadTime: 5
+      gunWeight: 0.45
       impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
       shootSFX: {fileID: 0}
       reloadSFX: {fileID: 0}
@@ -45,11 +47,13 @@ MonoBehaviour:
     - bulletType: 2
       bulletId: bullet_201
       bulletName: 5.56mm
-      bulletDamage: 15
-      bulletLifetime: 5
-      bulletSpeed: 20
+      bulletDamage: 10
+      bulletLifetime: 20
+      bulletSpeed: 15
       bulletRadius: 0
       bulletGravity: 0
+      hitVFX: {fileID: 178032, guid: 69a19db9810f6bc498c221c79dd6e9d1, type: 3}
+      explosionVFX: {fileID: 0}
     - bulletType: 3
       bulletId: bullet_301
       bulletName: 40mm
@@ -58,12 +62,14 @@ MonoBehaviour:
       bulletSpeed: 15
       bulletRadius: 3
       bulletGravity: 9.81
+      hitVFX: {fileID: 0}
+      explosionVFX: {fileID: 1337198075554910, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
   entitySettings:
     PlayerData:
       entityId: player
       hP: 200
-      moveSpeed: 2
-      sprintSpeed: 5.335
+      moveSpeed: 3
+      sprintSpeed: 6.335
       jumpHeight: 1.2
       sensitivity: 1
       guns:
@@ -87,16 +93,16 @@ MonoBehaviour:
       gunId: gun_201
     BossZombieDatas:
     - entityId: zb_201
-      hP: 1000
+      hP: 500
       moveSpeed: 2
-      detectionRange: 10
+      detectionRange: 15
       gunId: gun_201
       damage: 20
       attackMeleeDistance: 2
       attackRangeDistance: 10
-      cooldownMeleeAttack: 0.5
-      cooldownSkill: 20
-      aoeRadius: 7
+      cooldownMeleeAttack: 0
+      cooldownSkill: 30
+      aoeRadius: 10
       aoeDamage: 50
       aoePreparationTime: 10
-      stunDuration: 1
+      stunDuration: 0

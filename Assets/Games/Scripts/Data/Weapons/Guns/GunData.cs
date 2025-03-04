@@ -14,7 +14,7 @@ public class GunData
     public int magazineSize;
     public float fireRate;
     public float reloadTime;
-    
+    public float gunWeight;
     public GameObject impactEffect;
     
     public AudioClip shootSFX;

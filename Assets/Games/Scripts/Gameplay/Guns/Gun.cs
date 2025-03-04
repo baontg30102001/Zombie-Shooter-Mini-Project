@@ -1,4 +1,5 @@
-﻿using Unity.VisualScripting;
+﻿using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using Zenject;
 
@@ -25,6 +26,7 @@ public class Gun : MonoBehaviour
     private string _bulletId;
     private int _magazineSize = 30;
     private float _nextFireTime = 0f;
+    private float _gunWeight = 0;
 
     public GunType GunType => _gunType;
 
@@ -34,6 +36,8 @@ public class Gun : MonoBehaviour
     public float GetBulletSpeed() => _bulletData.bulletSpeed;
     public float GetBulletGravity() => _bulletData.bulletGravity;
     public float GetBulletRadius() => _bulletData.bulletRadius;
+    public float GetGunWeight() => _gunWeight;
+    public string GetGunId() => _gunId;
     
     #region Bullet Entity
     
@@ -41,7 +45,10 @@ public class Gun : MonoBehaviour
     private BulletData _bulletData = new BulletData();
     private Bullet_556.Factory _bullet556Factory;
     private Bullet_40.Factory _bullet40Factory;
-
+    private bool _isReloading;
+    private Player _player;
+    private Zombie _zombie;
+    
     #endregion
 
     [Inject]
@@ -65,6 +72,7 @@ public class Gun : MonoBehaviour
         _bulletId = _gunData.bulletId;
         _bulletData = _bulletConfig.GetBulletDataById(_bulletId);
         
+        
         _gunName = _gunData.gunName;
         _ammo = _gunData.magazineSize;
         _magazineMax = _ammo * 3;
@@ -75,6 +83,12 @@ public class Gun : MonoBehaviour
         _shootSFX = _gunData.shootSFX;
         _reloadSFX = _gunData.reloadSFX;
         _gunType = _gunData.gunType;
+        _gunWeight = _gunData.gunWeight;
+    }
+
+    public void SetPlayer(Player player)
+    {
+        _player = player;
     }
     
     public void Shoot(Vector3 targetPosition)
@@ -101,6 +115,32 @@ public class Gun : MonoBehaviour
 
     public void Reload()
     {
+        if (!_isReloading) // Kiểm tra xem có đang reload không
+        {
+            StartCoroutine(ReloadCoroutine());
+        }
+    }
+    
+    private IEnumerator ReloadCoroutine()
+    {
+        _isReloading = true;
+        float timer = 0f;
+
+        while (timer < _reloadTime)
+        {
+            timer += Time.deltaTime;
+            if (_player != null)
+            {
+                _player.GetUIGameplay().ReloadImage.fillAmount = 1f - (timer / _reloadTime);
+            }
+            yield return null;
+        }
+
+        if (_player != null)
+        {
+            _player.GetUIGameplay().ReloadImage.fillAmount = 0f;
+        }
+        // Thực hiện hành động reload
         int ammoMiss = _magazineSize - _ammo;
         if (_magazineMax >= ammoMiss)
         {
@@ -112,13 +152,15 @@ public class Gun : MonoBehaviour
             _ammo += _magazineMax;
             _magazineMax = 0;
         }
+
+        _isReloading = false;
     }
 
     private Bullet SpawnBullet(BulletData bulletData, Vector3 aimDir)
     {
         Bullet bullet = CreateBullet(_bulletId);
-        bullet.Initialize(bulletData);
-       bullet.transform.rotation = Quaternion.LookRotation(aimDir, Vector3.up);
+        bullet.Initialize(bulletData, _firePoint);
+        bullet.transform.rotation = Quaternion.LookRotation(aimDir, Vector3.up);
 
         return bullet;
     }

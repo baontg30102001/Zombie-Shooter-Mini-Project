@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 [Serializable]
 public class BulletData
@@ -13,6 +14,9 @@ public class BulletData
     public float bulletSpeed;
     public float bulletRadius;
     public float bulletGravity;
+
+    public GameObject hitVFX;
+    public GameObject explosionVFX;
 }
 
 public enum BulletType

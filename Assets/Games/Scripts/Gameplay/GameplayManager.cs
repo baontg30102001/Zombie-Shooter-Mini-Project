@@ -9,9 +9,9 @@ public class GameplayManager : MonoBehaviour
     [SerializeField] private Vector3 _spawnEnemyPosition;
     [SerializeField] private Vector3 _spawnRangeEnemyPosition;
     [SerializeField] private Player _player;
-    [SerializeField] private RangeZombie _zombie;
+    [SerializeField] private BossZombie _zombie;
 
-    [SerializeField] private UIGameplay uiGameplay;
+    [SerializeField] private UIGameplay _uiGameplay;
     
     private void Start()
     {
@@ -27,6 +27,6 @@ public class GameplayManager : MonoBehaviour
     private void SpawmZombie()
     {
         // _zombie.InitializeFromData("zb_001");
-        _zombie.InitializeFromData("zb_101");
+        _zombie.InitializeFromData("zb_201");
     }
 }

@@ -15,6 +15,7 @@ public class Bullet_40 : Bullet, IPoolable<Vector3, IMemoryPool>, IDisposable
 
     public void OnDespawned()
     {
+        gameObject.SetActive(false);
         _pool = null;
     }
 
@@ -22,7 +23,6 @@ public class Bullet_40 : Bullet, IPoolable<Vector3, IMemoryPool>, IDisposable
     {
         _pool = p2;
         transform.position = p1;
-
         StartCoroutine(LifeTimeCountdown());
     }
 
@@ -35,11 +35,6 @@ public class Bullet_40 : Bullet, IPoolable<Vector3, IMemoryPool>, IDisposable
     public void Dispose()
     {
         _pool.Despawn(this);
-    }
-    
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawSphere(transform.position, _radius);
     }
     
     public class Factory : PlaceholderFactory<Vector3, Bullet_40>

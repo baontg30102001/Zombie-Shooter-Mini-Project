@@ -155,16 +155,6 @@ public partial class Player : MonoBehaviour
             DrawProjection();
             RotateTowardsTarget(aimDirection);
         }
-        // else
-        // {
-        //     if (_hasAnimator)
-        //     {
-        //         _animator.SetBool(_animIDAim, false);
-        //     }
-        //     _aimCamera.gameObject.SetActive(false);
-        //     _sensitivity = _normalSensitivity;
-        //     _rotateOnMove = true;
-        // }
     }
 
     private Vector3 GetTargetPosition()
@@ -230,12 +220,6 @@ public partial class Player : MonoBehaviour
         }
 
         _aoeIndicatorInstance.transform.position = position;
-        // _aoeIndicatorInstance.transform.localScale = Vector3.one * _currentGun.GetBulletRadius() * 2; // Scale theo radius
+        _aoeIndicatorInstance.transform.localScale = Vector3.one * _currentGun.GetBulletRadius() * 2; // Scale theo radius
     }
-
-    // private void OnDrawGizmos()
-    // {
-    //     if (_aoeIndicatorPrefab == null) return;
-    //     Gizmos.DrawSphere(_aoeIndicatorInstance.transform.position, _currentGun.GetBulletRadius());
-    // }
 }
