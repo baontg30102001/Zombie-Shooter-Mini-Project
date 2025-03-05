@@ -13,12 +13,14 @@ public enum ZombieType
 public abstract class Zombie : MonoBehaviour
 {
     protected string _zombieId;
+    
     protected float _hp = 100f;
     protected float _moveSpeed;
     protected float _detectionRange = 20f;
 
     [SerializeField] protected NavMeshAgent _navMeshAgent;
     [SerializeField] protected Player _player;
+    [SerializeField] protected GameplayManager _gameplayManager;
     
     protected ZombieState _currentState;
 

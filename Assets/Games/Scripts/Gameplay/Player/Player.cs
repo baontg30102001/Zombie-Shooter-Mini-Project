@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Zenject;
 
 public partial class Player : MonoBehaviour
@@ -10,10 +11,13 @@ public partial class Player : MonoBehaviour
     [SerializeField] private List<Gun> _gunInInventory;
     [SerializeField] private List<string> _inventory;
     [SerializeField] private UIGameplay _uiGameplay;
+    [SerializeField] private GameplayManager _gameplayManager;
     
     private EntityIntaller.Settings _entityConfig;
     private PlayerData _playerData = new PlayerData();
-
+    
+    private UnityEvent RecheckZombieStatus = new UnityEvent();
+    
     #region Gun Entity
 
     private M4A1.Factory _m4a1Factory;
@@ -115,13 +119,10 @@ public partial class Player : MonoBehaviour
         if (_hp <= 0)
         {
             _hp = 0;
+            _gameplayManager.RecheckZombies();
         }
     }
 
-    public void Stun(float duration)
-    {
-        
-    }
     
     
     public class Factory : PlaceholderFactory<Player>

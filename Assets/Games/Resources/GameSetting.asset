@@ -22,12 +22,12 @@ MonoBehaviour:
       bulletId: bullet_201
       gunImage: {fileID: 404145619, guid: 5ae2403cc995967489df53645978f4da, type: 3}
       magazineSize: 30
-      fireRate: 0.53
+      fireRate: 0.4
       reloadTime: 3
       gunWeight: 0.7
       impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
-      shootSFX: {fileID: 0}
-      reloadSFX: {fileID: 0}
+      shootSFX: {fileID: 8300000, guid: ff014129d34140d44a1301be2c43556a, type: 3}
+      reloadSFX: {fileID: 8300000, guid: fc5bc88632192354cac05ef322f425f5, type: 3}
     - gunType: 3
       gunId: gun_301
       gunName: M32A1
@@ -38,8 +38,8 @@ MonoBehaviour:
       reloadTime: 5
       gunWeight: 0.45
       impactEffect: {fileID: 124018, guid: 1f389bb139e76154582cf3c5e4f9214b, type: 3}
-      shootSFX: {fileID: 0}
-      reloadSFX: {fileID: 0}
+      shootSFX: {fileID: 8300000, guid: ff014129d34140d44a1301be2c43556a, type: 3}
+      reloadSFX: {fileID: 8300000, guid: fc5bc88632192354cac05ef322f425f5, type: 3}
   bulletSettings:
     b556Prefab: {fileID: 8824494887773764939, guid: d31b8db066afc7d4a9c26c275f5645c4, type: 3}
     b40Prefab: {fileID: 6734558614857886850, guid: e2103aeb880ecb14086069c6d04d6fab, type: 3}
@@ -60,7 +60,7 @@ MonoBehaviour:
       bulletDamage: 30
       bulletLifetime: 20
       bulletSpeed: 15
-      bulletRadius: 3
+      bulletRadius: 2
       bulletGravity: 9.81
       hitVFX: {fileID: 0}
       explosionVFX: {fileID: 1337198075554910, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
@@ -93,7 +93,7 @@ MonoBehaviour:
       gunId: gun_201
     BossZombieDatas:
     - entityId: zb_201
-      hP: 500
+      hP: 300
       moveSpeed: 2
       detectionRange: 15
       gunId: gun_201

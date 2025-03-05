@@ -104,6 +104,8 @@ public class Gun : MonoBehaviour
             Destroy(impactEffectIstance, 4);
             
             Bullet bullet = SpawnBullet(_bulletData, aimDir);
+            
+            AudioSource.PlayClipAtPoint(_shootSFX, _firePoint.position, 0.5f);
             bullet.Shooting();
 
             if (_ammo <= 0 && _magazineMax != 0)
@@ -117,6 +119,8 @@ public class Gun : MonoBehaviour
     {
         if (!_isReloading) // Kiểm tra xem có đang reload không
         {
+            AudioSource.PlayClipAtPoint(_reloadSFX, _firePoint.position, 0.5f);
+
             StartCoroutine(ReloadCoroutine());
         }
     }

@@ -7,7 +7,6 @@ public class BossZombie : Zombie
 {
     protected string _gunId;
     protected float _damage;
-    protected float _cooldownMeleeAttack;
     protected float _attackMeleeDistance;
     protected float _attackRangeDistance;
     protected float _aoeRadius;
@@ -31,6 +30,8 @@ public class BossZombie : Zombie
     
     protected float _lastUsingSkill;
 
+    public float GetHP() => _hp;
+    
     [Inject]
     public void Construct(EntityIntaller.Settings entitySettings,
         M4A1.Factory m4a1Factory)
@@ -53,7 +54,6 @@ public class BossZombie : Zombie
         _damage = _zombieData.damage;
         _attackMeleeDistance = _zombieData.attackMeleeDistance;
         _attackRangeDistance = _zombieData.attackRangeDistance;
-        _cooldownMeleeAttack = _zombieData.cooldownMeleeAttack;
         _aoeRadius = _zombieData.aoeRadius;
         _aoeDamage = _zombieData.aoeDamage;
         _aoePreparationTime = _zombieData.aoePreparationTime;
@@ -91,6 +91,7 @@ public class BossZombie : Zombie
     private void OnDeath(AnimationEvent animationEvent)
     {
         gameObject.SetActive(false);
+        _gameplayManager.RecheckZombies();
     }
 
     private void AttackPlayer()

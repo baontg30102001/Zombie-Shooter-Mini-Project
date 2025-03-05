@@ -8,15 +8,25 @@ public class DoorController : MonoBehaviour
     [SerializeField] private string _requireKey = "key_001";
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        Debug.Log(other.name);
+        if (other.TryGetComponent(out Player player))
         {
-            Player player = other.GetComponent<Player>();
-            if (player.Inventory.FirstOrDefault(s => s == _requireKey) != null)
+            player = other.GetComponent<Player>();
+            if (_requireKey != "")
+            {
+                if (player.Inventory.FirstOrDefault(s => s == _requireKey) != null)
+                {
+                    player.Inventory.Remove(_requireKey);
+                    _animator.SetTrigger("Open");
+                    this.GetComponent<BoxCollider>().enabled = false;
+                }
+            }
+            else
             {
                 _animator.SetTrigger("Open");
-                player.Inventory.Remove(_requireKey);
                 this.GetComponent<BoxCollider>().enabled = false;
             }
+            
         }
     }
 }

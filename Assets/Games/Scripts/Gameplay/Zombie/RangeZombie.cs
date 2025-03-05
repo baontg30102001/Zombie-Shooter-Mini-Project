@@ -16,8 +16,11 @@ public class RangeZombie : Zombie
     
     private int _animIDAim;
     
+    public float GetHP() => _hp;
+    
     private EntityIntaller.Settings _entitySettings;
     private M4A1.Factory _m4a1Factory;
+    
     
     [Inject]
     public void Construct(EntityIntaller.Settings entitySettings,
@@ -71,6 +74,7 @@ public class RangeZombie : Zombie
     private void OnDeath(AnimationEvent animationEvent)
     {
         gameObject.SetActive(false);
+        _gameplayManager.RecheckZombies();
     }
 
     #region State Machine

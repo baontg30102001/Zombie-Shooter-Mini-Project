@@ -6,7 +6,6 @@ public class MeleeZombie : Zombie
 {
     protected float _damage;
     protected float _attackMeleeDistance;
-    protected float _cooldownMeleeAttack;
     
     [SerializeField] private Animator _animator;
     [SerializeField] private MeleeZombieData _zombieData;
@@ -14,8 +13,8 @@ public class MeleeZombie : Zombie
     private EntityIntaller.Settings _entitySettings;
 
     private int _animIDAttack;
-
     public Animator Animator => _animator;
+    public float GetHP() => _hp;
     
     [Inject]
     public void Construct(EntityIntaller.Settings entitySettings)
@@ -34,7 +33,6 @@ public class MeleeZombie : Zombie
         _damage = _zombieData.damage;
         _detectionRange = _zombieData.detectionRange;
         _attackMeleeDistance = _zombieData.attackMeleeDistance;
-        _cooldownMeleeAttack = _zombieData.cooldownMeleeAttack;
 
         AssignAnimationIDs();
         
@@ -55,6 +53,7 @@ public class MeleeZombie : Zombie
     private void OnDeath(AnimationEvent animationEvent)
     {
         gameObject.SetActive(false);
+        _gameplayManager.RecheckZombies();
     }
     
     private void AttackPlayer()
