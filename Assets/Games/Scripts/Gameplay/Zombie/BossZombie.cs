@@ -305,6 +305,11 @@ public class BossZombie : Zombie
                 {
                     RotateTowardsTarget(aimDirection);
                 }
+
+                if (((BossZombie)_zombie)._currentGun.GetTotalAmmo() <= 0)
+                {
+                    ((BossZombie)_zombie)._attackRangeDistance = 0;
+                }
             }
         }
         
@@ -345,6 +350,9 @@ public class BossZombie : Zombie
         public override void UpdateState()
         {
             _timer += Time.deltaTime;
+            int timerDelta = Mathf.RoundToInt(((BossZombie)_zombie)._aoePreparationTime - _timer);
+            ((BossZombie)_zombie)._gameplayManager.UIGameplay.Notice.text =
+                $"Boss se dung skill trong vong {timerDelta} giay nua.";
             
             if (((BossZombie)_zombie)._aoeIndicator != null)
             {
@@ -355,6 +363,7 @@ public class BossZombie : Zombie
             
             if (_timer >= ((BossZombie)_zombie)._aoePreparationTime)
             {
+                ((BossZombie)_zombie)._gameplayManager.UIGameplay.Notice.text = "";
                 TriggerAOE();
                 _zombie.SetState(ZombieStateType.Idle);
             }

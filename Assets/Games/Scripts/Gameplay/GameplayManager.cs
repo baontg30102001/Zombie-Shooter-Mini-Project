@@ -15,6 +15,8 @@ public class GameplayManager : MonoBehaviour
 
     [SerializeField] private UIGameplay _uiGameplay;
 
+    public UIGameplay UIGameplay => _uiGameplay;
+    
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;

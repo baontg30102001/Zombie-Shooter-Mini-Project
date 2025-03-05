@@ -38,6 +38,17 @@ public class Gun : MonoBehaviour
     public float GetBulletRadius() => _bulletData.bulletRadius;
     public float GetGunWeight() => _gunWeight;
     public string GetGunId() => _gunId;
+    public int GetTotalAmmo() => (_ammo + _magazineMax);
+    
+    private bool _isReloading;
+    private Player _player;
+    private Zombie _zombie;
+
+    public bool IsReloading
+    {
+        get => _isReloading;
+        set => _isReloading = value;
+    }
     
     #region Bullet Entity
     
@@ -45,10 +56,6 @@ public class Gun : MonoBehaviour
     private BulletData _bulletData = new BulletData();
     private Bullet_556.Factory _bullet556Factory;
     private Bullet_40.Factory _bullet40Factory;
-    private bool _isReloading;
-    private Player _player;
-    private Zombie _zombie;
-    
     #endregion
 
     [Inject]
@@ -75,7 +82,7 @@ public class Gun : MonoBehaviour
         
         _gunName = _gunData.gunName;
         _ammo = _gunData.magazineSize;
-        _magazineMax = _ammo * 3;
+        _magazineMax = _ammo * 10;
         _magazineSize = _gunData.magazineSize;
         _fireRate = _gunData.fireRate;
         _reloadTime = _gunData.reloadTime;
@@ -117,7 +124,7 @@ public class Gun : MonoBehaviour
 
     public void Reload()
     {
-        if (!_isReloading) // Kiểm tra xem có đang reload không
+        if (!_isReloading && _magazineMax > 0) // Kiểm tra xem có đang reload không
         {
             AudioSource.PlayClipAtPoint(_reloadSFX, _firePoint.position, 0.5f);
 

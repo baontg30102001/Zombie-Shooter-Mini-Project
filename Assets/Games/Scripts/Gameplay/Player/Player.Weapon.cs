@@ -51,6 +51,8 @@ public partial class Player : MonoBehaviour
 
         if (_inputSystem.swapWeapon)
         {
+            if (_aoeIndicatorInstance) _aoeIndicatorInstance.SetActive(false);
+            if (_currentGun.IsReloading) _currentGun.IsReloading = false;
             if (_gunInInventory.Count > 1)
             {
                 int index = _gunInInventory.IndexOf(_currentGun);

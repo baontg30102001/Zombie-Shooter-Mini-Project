@@ -21,7 +21,14 @@ public class UIGameplay : MonoBehaviour
     [SerializeField] private GameObject _winIcon;
     [SerializeField] private GameObject _loseIcon;
     [SerializeField] private Button _home;
+    [SerializeField] private TextMeshProUGUI _notice;
     public Image ReloadImage => _reloadImage;
+
+    public TextMeshProUGUI Notice
+    {
+        get => _notice;
+        set => _notice = value;
+    }
     
     private GunInstaller.Settings _gunSetting;
 
